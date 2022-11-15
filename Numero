@@ -1,0 +1,59 @@
+n = len(phone_num)
+m = int(input())
+words = [input() for _ in range(m)]
+
+# Создаём матрицу (n+1) x (n+1)
+a = [[-1] * (n+1) for i in range(n+1)]
+
+
+wordNumbers = [convertToNumber(words[i]) for i in range(m)]
+
+# Заполняем матрицу переходов
+# перебираем слова и проверяем, что они совпадают с частью номера телефона
+for i in range(n):
+    for k in range(m):
+        number = wordNumbers[k]
+        number_length = len(number)
+
+        if (phone_num[i:i+number_length] == number):
+            a[i][i+number_length]=k
+
+
+#Поиск в ширину
+
+# Сюда будем записывать вершины пути 
+# (вес, откуда пришли, куда идём)
+# По вершине на каждую цифру номера
+vertex = [(10000000,-1,-1)] * (n+1)
+
+stack = []
+stack.append(0)
+vertex[0]=(0, 0, 0)
+
+while(stack):
+    top = stack.pop()
+    ver = vertex[top]
+    new_weight = ver[0] + 1
+    for j in range(top+1, n+1):
+        k = a[top][j]
+        if k > -1:
+            v = vertex[j]
+            if v[0]>new_weight:
+                if v[1] == -1:
+                    stack.append(j)
+                vertex[j] = (new_weight, top, k)
+
+
+# Извлечение пути
+
+rver = vertex[n]
+if rver[1] == -1: #Мы не достигли конца
+    print('No solution.')
+else:
+    way = []
+    pos = n
+    while pos != 0:
+        v = vertex[pos]
+        way.insert(0,words[v[2]])
+        pos = v[1]
+    print(' '.join(way))
